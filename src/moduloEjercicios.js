@@ -2,12 +2,19 @@ import basededatos from './basededatos.js';
 
 
 /**
-* Devuelve el promedio de anios de estreno de todas las peliculas de la base de datos.
-*/
+ * Devuelve el promedio de anios de estreno de todas las peliculas de la base de datos.
+ */
 export const promedioAnioEstreno = () => {
-    // Ejemplo de como accedo a datos dentro de la base de datos
-    // console.log(basededatos.peliculas);
-    return [];
+  // Ejemplo de como accedo a datos dentro de la base de datos
+  // console.log(basededatos.peliculas);
+  var suma = 0;
+  const peliculas = basededatos.peliculas;
+  peliculas.forEach(item => {
+      suma += item.anio;
+  });
+  const promedio = suma / peliculas.length;
+
+  return promedio;
 };
 
 /**
@@ -16,15 +23,46 @@ export const promedioAnioEstreno = () => {
 * @param {number} promedio
   */
 export const pelicuasConCriticaPromedioMayorA = (promedio) => {
-    return [];
+    const peliculas = basededatos.peliculas;
+    const calificaciones = basededatos.calificaciones;
+    const prom = promedio;
+
+    var respuesta = [];
+    peliculas.forEach(pelicula => {
+        var total = 0;
+        var promedio = 0
+        var calificacionPorPeli = calificaciones.filter(item => item.pelicula == pelicula.id );
+       
+        var califPromedio = promedioCalificaciones(calificacionPorPeli);
+      
+        if(califPromedio > prom){
+            respuesta.push(pelicula.nombre);
+        }
+
+    });
+
+
+    return respuesta;
 };
 
+const promedioCalificaciones = (calificaciones) => {
+    var total = 0;
+    calificaciones.forEach(item => {
+        return total += item.puntuacion;
+    })
+    return total / calificaciones.length
+}
+ 
 /**
 * Devuelve la lista de peliculas de un director
 * @param {string} nombreDirector
 */
 export const peliculasDeUnDirector = (nombreDirector) => {
-    return [];
+    const peliculas = basededatos.peliculas;
+    const directores = basededatos.directores;
+    const director = directores.filter(item => item.nombre == nombreDirector)[0];
+
+    return peliculas.filter(item => item.directores.includes(director.id)).map(item => item.nombre);
 };
 
 /**
@@ -32,7 +70,8 @@ export const peliculasDeUnDirector = (nombreDirector) => {
 * @param {number} peliculaId
 */
 export const promedioDeCriticaBypeliculaId = (peliculaId) => {
-    return [];
+    const calificaciones = basededatos.calificaciones.filter(item => item.pelicula == peliculaId);
+    return promedioCalificaciones(calificaciones);
 };
 
 /**
