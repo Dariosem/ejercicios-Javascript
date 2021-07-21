@@ -23,8 +23,9 @@ export const promedioAnioEstreno = () => {
 * @param {number} promedio
   */
 export const pelicuasConCriticaPromedioMayorA = (promedio) => {
-    const peliculas = basededatos.peliculas;
-    const calificaciones = basededatos.calificaciones;
+
+    const { peliculas, calificaciones } = basededatos;
+
     const prom = promedio;
 
     var respuesta = [];
@@ -58,8 +59,8 @@ const promedioCalificaciones = (calificaciones) => {
 * @param {string} nombreDirector
 */
 export const peliculasDeUnDirector = (nombreDirector) => {
-    const peliculas = basededatos.peliculas;
-    const directores = basededatos.directores;
+    
+    const { peliculas, directores } = basededatos;
     const director = directores.filter(item => item.nombre == nombreDirector)[0];
 
     return peliculas.filter(item => item.directores.includes(director.id)).map(item => item.nombre);
@@ -107,9 +108,16 @@ export const promedioDeCriticaBypeliculaId = (peliculaId) => {
     ],
  */
 export const obtenerPeliculasConPuntuacionExcelente = () => {
-    // Ejemplo de como accedo a datos dentro de la base de datos
-    // console.log(basededatos.peliculas);
-    return [];
+
+    const { peliculas, calificaciones } = basededatos;
+    
+    var resp = [];
+    const calificacionesExcelentes = calificaciones.filter(item => item.puntuacion >= 9 );
+    calificacionesExcelentes.forEach(calif => {
+        resp.push(...peliculas.filter(item => item.id == calif.pelicula));
+    });
+
+    return resp;
 };
 
 /**
@@ -160,5 +168,29 @@ export const obtenerPeliculasConPuntuacionExcelente = () => {
  * @param {string} nombrePelicula
  */
 export const expandirInformacionPelicula = (nombrePelicula) => {
-    return {};
+
+    const { peliculas, directores, paises, generos, criticos, calificaciones} = basededatos;
+
+    var peli = peliculas.filter(item => item.nombre == nombrePelicula);
+
+    if(peli.length <= 0) console.log('El nombre de la película no es correcto');
+    else peli = peli[0];
+
+
+    peli.directores = directores.filter(item => peli.directores.includes(item.id));
+    peli.generos = generos.filter(item => peli.generos.includes(item.id));
+    peli.criticas = [];
+
+    const calif = calificaciones.filter(item => item.pelicula == peli.id);
+
+    calif.forEach(calificacion => {
+        let critico = criticos.filter(item => item.id == calificacion.critico)[0];
+        paises.forEach(pais => {
+            if(critico.pais == pais.id) critico.pais = pais.nombre;
+        });
+   
+        peli.criticas.push({ critico, puntuacion: calificacion.puntuacion });
+    });
+
+    return peli;
 };
